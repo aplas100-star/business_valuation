@@ -1,0 +1,572 @@
+<!DOCTYPE html>
+<html lang="el" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Εκτίμηση Αξίας Επιχείρησης</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300..700&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#f7f6f2;--surface:#ffffff;--surface2:#f3f0ec;--border:#dcd9d5;
+  --text:#28251d;--muted:#7a7974;--faint:#bab9b4;
+  --primary:#01696f;--primary-h:#0c4e54;--primary-hl:#cedcd8;
+  --success:#437a22;--warning:#964219;--error:#a12c7b;
+  --radius:0.75rem;--shadow:0 4px 16px rgba(0,0,0,0.08);
+  --font:'Inter',sans-serif;
+}
+[data-theme="dark"]{
+  --bg:#171614;--surface:#1c1b19;--surface2:#22211f;--border:#393836;
+  --text:#cdccca;--muted:#797876;--faint:#5a5957;
+  --primary:#4f98a3;--primary-h:#227f8b;--primary-hl:#313b3b;
+  --success:#6daa45;--warning:#bb653b;
+}
+body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:100vh;font-size:15px;line-height:1.6}
+.app{max-width:960px;margin:0 auto;padding:24px 16px 60px}
+
+/* HEADER */
+header{display:flex;align-items:center;justify-content:space-between;margin-bottom:32px;padding-bottom:20px;border-bottom:1px solid var(--border)}
+.logo{display:flex;align-items:center;gap:12px}
+.logo svg{color:var(--primary)}
+.logo-text h1{font-size:1.15rem;font-weight:700;color:var(--text);line-height:1.2}
+.logo-text p{font-size:0.78rem;color:var(--muted)}
+.theme-btn{background:none;border:1px solid var(--border);border-radius:8px;padding:8px;cursor:pointer;color:var(--muted);display:flex;align-items:center;transition:all .2s}
+.theme-btn:hover{border-color:var(--primary);color:var(--primary)}
+
+/* TABS */
+.tabs{display:flex;gap:4px;background:var(--surface2);padding:4px;border-radius:10px;margin-bottom:28px}
+.tab{flex:1;padding:9px 12px;border:none;background:none;border-radius:7px;cursor:pointer;font-size:0.82rem;font-weight:500;color:var(--muted);transition:all .18s;text-align:center}
+.tab.active{background:var(--surface);color:var(--primary);box-shadow:0 1px 4px rgba(0,0,0,0.1)}
+
+/* CARDS */
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:24px;margin-bottom:20px;box-shadow:var(--shadow)}
+.card-title{font-size:0.95rem;font-weight:700;color:var(--text);margin-bottom:18px;display:flex;align-items:center;gap:8px}
+.card-title .badge{background:var(--primary-hl);color:var(--primary);font-size:0.7rem;padding:2px 8px;border-radius:20px;font-weight:600}
+
+/* FORM */
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+@media(max-width:600px){.form-grid{grid-template-columns:1fr}}
+.field{display:flex;flex-direction:column;gap:5px}
+.field label{font-size:0.8rem;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.04em}
+.field input,.field select{background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:10px 12px;font-size:0.9rem;color:var(--text);font-family:var(--font);transition:border-color .18s;outline:none}
+.field input:focus,.field select:focus{border-color:var(--primary);box-shadow:0 0 0 3px rgba(1,105,111,0.12)}
+.field .hint{font-size:0.75rem;color:var(--faint)}
+.field-full{grid-column:1/-1}
+select option{background:var(--surface)}
+
+/* SLIDER */
+.slider-wrap{display:flex;align-items:center;gap:10px}
+input[type=range]{flex:1;accent-color:var(--primary);height:4px;cursor:pointer}
+.slider-val{font-size:0.85rem;font-weight:700;color:var(--primary);min-width:36px;text-align:right}
+
+/* BUTTONS */
+.btn-primary{background:var(--primary);color:#fff;border:none;border-radius:8px;padding:12px 28px;font-size:0.9rem;font-weight:600;cursor:pointer;font-family:var(--font);transition:background .18s;width:100%}
+.btn-primary:hover{background:var(--primary-h)}
+.btn-row{display:flex;gap:10px;margin-top:8px}
+.btn-secondary{background:var(--surface2);color:var(--text);border:1px solid var(--border);border-radius:8px;padding:10px 20px;font-size:0.85rem;font-weight:600;cursor:pointer;font-family:var(--font);transition:all .18s}
+.btn-secondary:hover{border-color:var(--primary);color:var(--primary)}
+
+/* RESULTS */
+.results-section{display:none}
+.results-section.show{display:block}
+.valuation-hero{background:linear-gradient(135deg,var(--primary) 0%,var(--primary-h) 100%);color:#fff;border-radius:var(--radius);padding:28px;margin-bottom:20px;text-align:center}
+.valuation-hero .label{font-size:0.82rem;opacity:.8;font-weight:500;margin-bottom:6px}
+.valuation-hero .range{font-size:2rem;font-weight:700;margin-bottom:4px}
+.valuation-hero .sub{font-size:0.85rem;opacity:.75}
+
+.methods-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:14px;margin-bottom:20px}
+.method-card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:18px;text-align:center}
+.method-card .m-name{font-size:0.75rem;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.04em;margin-bottom:6px}
+.method-card .m-value{font-size:1.2rem;font-weight:700;color:var(--primary)}
+.method-card .m-weight{font-size:0.72rem;color:var(--faint);margin-top:3px}
+
+/* GAUGE */
+.gauge-row{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px}
+@media(max-width:580px){.gauge-row{grid-template-columns:1fr}}
+.score-card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:18px}
+.score-title{font-size:0.8rem;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.04em;margin-bottom:12px}
+.bar-wrap{height:8px;background:var(--surface2);border-radius:20px;overflow:hidden;margin-bottom:5px}
+.bar-fill{height:100%;border-radius:20px;transition:width 0.8s cubic-bezier(.25,.8,.25,1)}
+.bar-label{display:flex;justify-content:space-between;font-size:0.75rem;color:var(--muted)}
+
+/* FACTORS TABLE */
+.factors-table{width:100%;border-collapse:collapse}
+.factors-table th{font-size:0.75rem;font-weight:700;text-transform:uppercase;letter-spacing:.04em;color:var(--muted);padding:8px 12px;border-bottom:2px solid var(--border);text-align:left}
+.factors-table td{padding:10px 12px;border-bottom:1px solid var(--border);font-size:0.88rem}
+.factors-table tr:last-child td{border-bottom:none}
+.tag{display:inline-block;padding:2px 8px;border-radius:20px;font-size:0.72rem;font-weight:600}
+.tag.pos{background:#d4dfcc;color:#437a22}
+.tag.neg{background:#e0ced7;color:#a12c7b}
+.tag.neu{background:var(--surface2);color:var(--muted)}
+
+/* DISCLAIMER */
+.disclaimer{background:var(--surface2);border-left:3px solid var(--warning);border-radius:0 8px 8px 0;padding:12px 16px;font-size:0.78rem;color:var(--muted);margin-top:16px}
+
+/* TOOLTIP / INFO */
+.info-icon{display:inline-block;width:16px;height:16px;background:var(--border);border-radius:50%;text-align:center;font-size:0.65rem;font-weight:700;color:var(--muted);cursor:help;line-height:16px;margin-left:4px}
+
+/* SECTION NAV */
+.section-page{display:none}
+.section-page.active{display:block}
+
+/* PRINT */
+@media print{.tabs,.btn-primary,.btn-row,.theme-btn{display:none!important}.results-section{display:block!important}}
+</style>
+</head>
+<body>
+<div class="app">
+
+  <!-- HEADER -->
+  <header>
+    <div class="logo">
+      <svg width="36" height="36" viewBox="0 0 36 36" fill="none">
+        <rect width="36" height="36" rx="8" fill="currentColor" opacity=".12"/>
+        <path d="M8 26 L8 14 L14 10 L14 18 L20 13 L20 22 L28 17 L28 26 Z" fill="currentColor" opacity=".9"/>
+        <circle cx="28" cy="26" r="2.5" fill="currentColor"/>
+        <circle cx="20" cy="26" r="2.5" fill="currentColor"/>
+        <circle cx="8" cy="26" r="2.5" fill="currentColor"/>
+      </svg>
+      <div class="logo-text">
+        <h1>Business Valuation Tool</h1>
+        <p>Online Real Estate — Business Broker</p>
+      </div>
+    </div>
+    <button class="theme-btn" data-theme-toggle onclick="toggleTheme()" title="Εναλλαγή θέματος">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+      </svg>
+    </button>
+  </header>
+
+  <!-- TABS -->
+  <div class="tabs">
+    <button class="tab active" onclick="showTab('input')">📋 Στοιχεία Επιχείρησης</button>
+    <button class="tab" onclick="showTab('qualitative')">⭐ Ποιοτικά Κριτήρια</button>
+    <button class="tab" onclick="showTab('results')" id="results-tab">📊 Αποτίμηση</button>
+  </div>
+
+  <!-- PAGE 1: INPUTS -->
+  <div class="section-page active" id="page-input">
+
+    <!-- Βασικά Οικονομικά -->
+    <div class="card">
+      <div class="card-title">
+        💰 Οικονομικά Στοιχεία
+        <span class="badge">Υποχρεωτικά</span>
+      </div>
+      <div class="form-grid">
+        <div class="field">
+          <label>Κλάδος Επιχείρησης</label>
+          <select id="sector" onchange="updateMultiples()">
+            <option value="fnb">Εστίαση / F&B / Café</option>
+            <option value="retail">Λιανικό Εμπόριο / Κατάστημα</option>
+            <option value="services">Υπηρεσίες / Γραφείο</option>
+            <option value="beauty">Κομμωτήριο / Beauty</option>
+            <option value="franchise">Franchise</option>
+            <option value="manufacturing">Παραγωγή / Βιοτεχνία</option>
+            <option value="ecommerce">E-Commerce / Digital</option>
+            <option value="other">Άλλο</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Χρόνια Λειτουργίας</label>
+          <input type="number" id="years" placeholder="π.χ. 5" min="0" max="50"/>
+        </div>
+        <div class="field">
+          <label>Ετήσιος Τζίρος (€)</label>
+          <input type="number" id="revenue" placeholder="π.χ. 150000"/>
+          <span class="hint">Μέσος όρος τελευταίων 2-3 ετών</span>
+        </div>
+        <div class="field">
+          <label>Ετήσια Κέρδη προ φόρων (€)</label>
+          <input type="number" id="net_profit" placeholder="π.χ. 35000"/>
+          <span class="hint">Καθαρά κέρδη ιδιοκτήτη (SDE)</span>
+        </div>
+        <div class="field">
+          <label>EBITDA (€) <span class="info-icon" title="Κέρδη προ τόκων, φόρων & αποσβέσεων">?</span></label>
+          <input type="number" id="ebitda" placeholder="π.χ. 42000"/>
+          <span class="hint">Αφήστε κενό αν άγνωστο</span>
+        </div>
+        <div class="field">
+          <label>Ετήσιο Ενοίκιο (€)</label>
+          <input type="number" id="rent" placeholder="π.χ. 12000"/>
+        </div>
+        <div class="field">
+          <label>Αξία Εξοπλισμού / Αποθέματος (€)</label>
+          <input type="number" id="assets" placeholder="π.χ. 25000"/>
+          <span class="hint">Λογιστική ή εκτιμώμενη αξία</span>
+        </div>
+        <div class="field">
+          <label>Ανανέωση Μισθωτηρίου</label>
+          <select id="lease">
+            <option value="long">Μακροχρόνια σύμβαση (+3 έτη)</option>
+            <option value="short">Βραχυχρόνια (1-3 έτη)</option>
+            <option value="none">Χωρίς σύμβαση / Εκκρεμεί</option>
+            <option value="owned">Ιδιόκτητο ακίνητο</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Ζητούμενη Τιμή Πώλησης (€)</label>
+          <input type="number" id="asking_price" placeholder="Προαιρετικό"/>
+          <span class="hint">Αν υπάρχει ζητούμενη τιμή</span>
+        </div>
+        <div class="field">
+          <label>Αριθμός Υπαλλήλων</label>
+          <input type="number" id="employees" placeholder="π.χ. 3" min="0"/>
+        </div>
+      </div>
+    </div>
+
+    <div class="btn-row">
+      <button class="btn-primary" onclick="showTab('qualitative')">Επόμενο: Ποιοτικά Κριτήρια →</button>
+    </div>
+  </div>
+
+  <!-- PAGE 2: QUALITATIVE -->
+  <div class="section-page" id="page-qualitative">
+    <div class="card">
+      <div class="card-title">⭐ Ποιοτικά Κριτήρια Αποτίμησης</div>
+      <div class="form-grid">
+
+        <div class="field field-full">
+          <label>Τάση Πωλήσεων (τελευταία 2 χρόνια)</label>
+          <select id="trend">
+            <option value="3">📈 Ανοδική (+15%+)</option>
+            <option value="2" selected>➡️ Σταθερή (±15%)</option>
+            <option value="1">📉 Πτωτική (-15% έως -30%)</option>
+            <option value="0">⚠️ Έντονα Πτωτική (-30%+)</option>
+          </select>
+        </div>
+
+        <div class="field">
+          <label>Τοποθεσία / Εμπορικότητα</label>
+          <select id="location">
+            <option value="3">Κεντρική / Πολύ εμπορική</option>
+            <option value="2" selected>Καλή / Αρκετά εμπορική</option>
+            <option value="1">Μέτρια / Περιφερειακή</option>
+            <option value="0">Απομακρυσμένη / Μη εμπορική</option>
+          </select>
+        </div>
+
+        <div class="field">
+          <label>Ανταγωνισμός στην περιοχή</label>
+          <select id="competition">
+            <option value="3">Ελάχιστος / Μοναδικό στην αγορά</option>
+            <option value="2" selected>Μέτριος / Ελεγχόμενος</option>
+            <option value="1">Έντονος / Πολλοί ανταγωνιστές</option>
+            <option value="0">Πάρα πολύ έντονος</option>
+          </select>
+        </div>
+
+        <div class="field">
+          <label>Πελατολόγιο / Πιστοί Πελάτες</label>
+          <select id="customers">
+            <option value="3">Ισχυρό πιστό πελατολόγιο / Συμβόλαια</option>
+            <option value="2" selected>Καλή βάση πελατών</option>
+            <option value="1">Μέτριο / Εξαρτάται από τον ιδιοκτήτη</option>
+            <option value="0">Αδύναμο / Τυχαία πελατεία</option>
+          </select>
+        </div>
+
+        <div class="field">
+          <label>Brand / Φήμη / Online παρουσία</label>
+          <select id="brand">
+            <option value="3">Ισχυρό brand / Καλές κριτικές / Social media</option>
+            <option value="2" selected>Μέτριο / Αναγνωρίσιμο τοπικά</option>
+            <option value="1">Αδύναμο / Ελάχιστη παρουσία</option>
+            <option value="0">Ανύπαρκτο</option>
+          </select>
+        </div>
+
+        <div class="field">
+          <label>Εξάρτηση από τον ιδιοκτήτη</label>
+          <select id="owner_dep">
+            <option value="3">Λειτουργεί αυτόνομα / Μάνατζερ</option>
+            <option value="2" selected>Μικρή εξάρτηση</option>
+            <option value="1">Μέτρια εξάρτηση</option>
+            <option value="0">Πλήρης εξάρτηση από τον ιδιοκτήτη</option>
+          </select>
+        </div>
+
+        <div class="field">
+          <label>Αδειοδότηση / Νομική κατάσταση</label>
+          <select id="legal">
+            <option value="3">Πλήρως εν τάξει / Όλες άδειες ενεργές</option>
+            <option value="2" selected>Κατά βάση εν τάξει</option>
+            <option value="1">Εκκρεμότητες / Θέματα</option>
+            <option value="0">Σοβαρά νομικά ζητήματα</option>
+          </select>
+        </div>
+
+        <div class="field">
+          <label>Δυνατότητα Ανάπτυξης</label>
+          <select id="growth">
+            <option value="3">Μεγάλη / Επεκτάσιμο μοντέλο</option>
+            <option value="2" selected>Μέτρια δυνατότητα</option>
+            <option value="1">Περιορισμένη</option>
+            <option value="0">Αμελητέα / Κορεσμένη αγορά</option>
+          </select>
+        </div>
+
+        <div class="field field-full">
+          <label>Εποχικότητα</label>
+          <select id="seasonality">
+            <option value="2" selected>Ομοιόμορφη / Χωρίς εποχικότητα</option>
+            <option value="1">Μέτρια εποχικότητα</option>
+            <option value="0">Έντονα εποχιακή</option>
+          </select>
+        </div>
+
+      </div>
+    </div>
+
+    <div class="btn-row">
+      <button class="btn-secondary" onclick="showTab('input')">← Πίσω</button>
+      <button class="btn-primary" onclick="calculate()" style="flex:1">🧮 Υπολογισμός Αποτίμησης</button>
+    </div>
+  </div>
+
+  <!-- PAGE 3: RESULTS -->
+  <div class="section-page" id="page-results">
+
+    <div class="results-section show" id="results-area">
+      <!-- populated by JS -->
+    </div>
+
+    <div class="btn-row" style="margin-top:16px">
+      <button class="btn-secondary" onclick="showTab('input')">← Νέα Αποτίμηση</button>
+      <button class="btn-secondary" onclick="window.print()">🖨️ Εκτύπωση / PDF</button>
+    </div>
+
+  </div>
+
+</div>
+
+<script>
+// SECTOR MULTIPLES
+const sectorData = {
+  fnb:          {name:'Εστίαση / F&B', rev:[0.3,0.6], sde:[1.5,2.5], ebitda:[2.5,4.0]},
+  retail:       {name:'Λιανικό Εμπόριο', rev:[0.2,0.5], sde:[1.5,2.5], ebitda:[2.0,3.5]},
+  services:     {name:'Υπηρεσίες', rev:[0.4,0.8], sde:[2.0,3.0], ebitda:[3.0,5.0]},
+  beauty:       {name:'Κομμωτήριο / Beauty', rev:[0.3,0.5], sde:[1.5,2.5], ebitda:[2.0,3.5]},
+  franchise:    {name:'Franchise', rev:[0.4,0.7], sde:[2.0,3.5], ebitda:[3.0,5.0]},
+  manufacturing:{name:'Παραγωγή', rev:[0.3,0.6], sde:[2.0,3.5], ebitda:[3.5,6.0]},
+  ecommerce:    {name:'E-Commerce', rev:[0.5,1.2], sde:[2.5,4.0], ebitda:[4.0,7.0]},
+  other:        {name:'Άλλο', rev:[0.3,0.6], sde:[1.5,2.5], ebitda:[2.5,4.0]}
+};
+
+let darkMode = false;
+
+function toggleTheme(){
+  darkMode = !darkMode;
+  document.documentElement.setAttribute('data-theme', darkMode ? 'dark' : 'light');
+}
+
+function showTab(tab){
+  document.querySelectorAll('.tab').forEach((t,i)=>{
+    t.classList.toggle('active', ['input','qualitative','results'][i]===tab);
+  });
+  document.querySelectorAll('.section-page').forEach(p=>p.classList.remove('active'));
+  document.getElementById('page-'+tab).classList.add('active');
+  if(tab==='results') window.scrollTo({top:0,behavior:'smooth'});
+}
+
+function fmt(n){
+  return new Intl.NumberFormat('el-GR',{style:'currency',currency:'EUR',maximumFractionDigits:0}).format(n);
+}
+
+function getQualScore(){
+  const fields = ['trend','location','competition','customers','brand','owner_dep','legal','growth','seasonality'];
+  const maxes  = [3,3,3,3,3,3,3,3,2];
+  let score=0, max=0;
+  fields.forEach((f,i)=>{score+=parseInt(document.getElementById(f).value);max+=maxes[i];});
+  return {score, max, pct: score/max};
+}
+
+function calculate(){
+  const revenue = parseFloat(document.getElementById('revenue').value)||0;
+  const net_profit = parseFloat(document.getElementById('net_profit').value)||0;
+  let ebitda = parseFloat(document.getElementById('ebitda').value)||0;
+  const assets = parseFloat(document.getElementById('assets').value)||0;
+  const rent = parseFloat(document.getElementById('rent').value)||0;
+  const asking = parseFloat(document.getElementById('asking_price').value)||0;
+  const years = parseInt(document.getElementById('years').value)||0;
+  const lease = document.getElementById('lease').value;
+  const sector = document.getElementById('sector').value;
+  const sd = sectorData[sector];
+
+  if(!revenue && !net_profit){alert('Εισάγετε τουλάχιστον Τζίρο ή Κέρδη!');showTab('input');return;}
+
+  // Auto-estimate EBITDA if missing
+  if(!ebitda && net_profit) ebitda = net_profit * 1.15;
+  if(!ebitda && revenue) ebitda = revenue * 0.15;
+
+  // Qualitative score
+  const {score, max, pct} = getQualScore();
+  const qualMult = 0.75 + (pct * 0.5); // 0.75 to 1.25 multiplier
+
+  // Lease adjustment
+  const leaseAdj = {long:1.0, short:0.95, none:0.85, owned:1.1}[lease];
+
+  // Years factor
+  const yearsFactor = years >= 10 ? 1.1 : years >= 5 ? 1.0 : years >= 2 ? 0.9 : 0.75;
+
+  // Method 1: Revenue Multiple
+  let revLow=0, revHigh=0;
+  if(revenue){
+    revLow  = revenue * sd.rev[0] * qualMult * leaseAdj * yearsFactor;
+    revHigh = revenue * sd.rev[1] * qualMult * leaseAdj * yearsFactor;
+  }
+
+  // Method 2: SDE Multiple (net profit)
+  let sdeLow=0, sdeHigh=0;
+  if(net_profit){
+    sdeLow  = net_profit * sd.sde[0] * qualMult * leaseAdj * yearsFactor;
+    sdeHigh = net_profit * sd.sde[1] * qualMult * leaseAdj * yearsFactor;
+  }
+
+  // Method 3: EBITDA Multiple
+  let ebitdaLow=0, ebitdaHigh=0;
+  if(ebitda){
+    ebitdaLow  = ebitda * sd.ebitda[0] * qualMult * leaseAdj * yearsFactor;
+    ebitdaHigh = ebitda * sd.ebitda[1] * qualMult * leaseAdj * yearsFactor;
+  }
+
+  // Method 4: Asset-based (floor)
+  const assetVal = assets * 1.2; // slight goodwill on assets
+
+  // Weighted average (if methods available)
+  let weights = [], vals_low = [], vals_high = [];
+  if(sdeLow)    {weights.push(0.40); vals_low.push(sdeLow);    vals_high.push(sdeHigh);}
+  if(ebitdaLow) {weights.push(0.35); vals_low.push(ebitdaLow); vals_high.push(ebitdaHigh);}
+  if(revLow)    {weights.push(0.25); vals_low.push(revLow);    vals_high.push(revHigh);}
+
+  const totalW = weights.reduce((a,b)=>a+b,0);
+  let finalLow  = vals_low.reduce((s,v,i)=>s+v*(weights[i]/totalW),0);
+  let finalHigh = vals_high.reduce((s,v,i)=>s+v*(weights[i]/totalW),0);
+
+  // Asset floor
+  finalLow  = Math.max(finalLow, assetVal);
+  finalHigh = Math.max(finalHigh, assetVal * 1.3);
+
+  // Asking price analysis
+  let askingHtml = '';
+  if(asking && finalLow){
+    const mid = (finalLow+finalHigh)/2;
+    const diff = ((asking-mid)/mid*100).toFixed(1);
+    const cls = asking <= finalHigh*1.1 ? 'pos' : 'neg';
+    const label = asking < finalLow ? 'Κάτω από εκτίμηση' : asking <= finalHigh*1.1 ? 'Εντός εύλογου εύρους' : 'Άνω της εκτίμησης';
+    askingHtml = `
+    <div class="card">
+      <div class="card-title">🏷️ Ανάλυση Ζητούμενης Τιμής</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;text-align:center">
+        <div><div style="font-size:.78rem;color:var(--muted);margin-bottom:4px">ΖΗΤΟΥΜΕΝΗ</div><div style="font-size:1.3rem;font-weight:700">${fmt(asking)}</div></div>
+        <div><div style="font-size:.78rem;color:var(--muted);margin-bottom:4px">ΕΚΤΙΜΗΣΗ (MID)</div><div style="font-size:1.3rem;font-weight:700;color:var(--primary)">${fmt(mid)}</div></div>
+        <div><div style="font-size:.78rem;color:var(--muted);margin-bottom:4px">ΑΞΙΟΛΟΓΗΣΗ</div><div style="margin-top:4px"><span class="tag ${cls}">${label}</span></div><div style="font-size:.75rem;color:var(--muted);margin-top:3px">${diff > 0 ? '+' : ''}${diff}% vs εκτίμηση</div></div>
+      </div>
+    </div>`;
+  }
+
+  // ROI calc
+  let roiHtml = '';
+  if(net_profit && finalLow){
+    const mid = (finalLow+finalHigh)/2;
+    const roi = (net_profit/mid*100).toFixed(1);
+    const payback = (mid/net_profit).toFixed(1);
+    roiHtml = `
+    <div class="card">
+      <div class="card-title">📈 Αποδοτικότητα για τον Αγοραστή</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;text-align:center">
+        <div><div style="font-size:.78rem;color:var(--muted);margin-bottom:4px">ΕΤΗΣΙΑ ΑΠΟΔΟΣΗ (ROI)</div><div style="font-size:1.5rem;font-weight:700;color:var(--success)">${roi}%</div></div>
+        <div><div style="font-size:.78rem;color:var(--muted);margin-bottom:4px">ΑΠΟΠΛΗΡΩΜΗ ΕΠΕΝΔΥΣΗΣ</div><div style="font-size:1.5rem;font-weight:700">${payback} έτη</div></div>
+        <div><div style="font-size:.78rem;color:var(--muted);margin-bottom:4px">ΕΤΗΣΙΑ ΚΕΡΔΗ</div><div style="font-size:1.5rem;font-weight:700;color:var(--primary)">${fmt(net_profit)}</div></div>
+      </div>
+    </div>`;
+  }
+
+  // Quality factors breakdown
+  const factorRows = [
+    ['Τάση Πωλήσεων', document.getElementById('trend'), ['⚠️ Έντονα Πτωτική','📉 Πτωτική','➡️ Σταθερή','📈 Ανοδική'], [0,1,2,3]],
+    ['Τοποθεσία', document.getElementById('location'), ['Μη εμπορική','Περιφερειακή','Καλή','Κεντρική'], [0,1,2,3]],
+    ['Ανταγωνισμός', document.getElementById('competition'), ['Πολύ έντονος','Έντονος','Μέτριος','Ελάχιστος'], [0,1,2,3]],
+    ['Πελατολόγιο', document.getElementById('customers'), ['Αδύναμο','Μέτριο','Καλό','Ισχυρό'], [0,1,2,3]],
+    ['Brand / Φήμη', document.getElementById('brand'), ['Ανύπαρκτο','Αδύναμο','Μέτριο','Ισχυρό'], [0,1,2,3]],
+    ['Εξάρτηση Ιδιοκτήτη', document.getElementById('owner_dep'), ['Πλήρης','Μέτρια','Μικρή','Αυτόνομη'], [0,1,2,3]],
+    ['Αδειοδότηση', document.getElementById('legal'), ['Σοβαρά ζητήματα','Εκκρεμότητες','Κατά βάση ΟΚ','Πλήρως ΟΚ'], [0,1,2,3]],
+    ['Δυνατότητα Ανάπτυξης', document.getElementById('growth'), ['Αμελητέα','Περιορισμένη','Μέτρια','Μεγάλη'], [0,1,2,3]],
+    ['Εποχικότητα', document.getElementById('seasonality'), ['Έντονη','Μέτρια','Ομοιόμορφη'], [0,1,2]],
+  ];
+
+  const factorHtmlRows = factorRows.map(([name, el, labels, vals])=>{
+    const v = parseInt(el.value);
+    const max_v = Math.max(...vals);
+    const pctV = v/max_v;
+    const cls = pctV >= 0.66 ? 'pos' : pctV >= 0.33 ? 'neu' : 'neg';
+    return `<tr>
+      <td>${name}</td>
+      <td>${labels[vals.indexOf(v)]}</td>
+      <td><span class="tag ${cls}">${pctV>=0.66?'Θετικό':pctV>=0.33?'Ουδέτερο':'Αρνητικό'}</span></td>
+    </tr>`;
+  }).join('');
+
+  const qualPct = Math.round(pct*100);
+  const qualLabel = qualPct >= 70 ? 'Υψηλή' : qualPct >= 45 ? 'Μέτρια' : 'Χαμηλή';
+  const qualColor = qualPct >= 70 ? 'var(--success)' : qualPct >= 45 ? 'var(--warning)' : 'var(--error)';
+
+  // Build methods cards
+  let methodCards = '';
+  if(sdeLow) methodCards += `<div class="method-card"><div class="m-name">SDE Multiple</div><div class="m-value">${fmt(sdeLow)} – ${fmt(sdeHigh)}</div><div class="m-weight">Βάρος: 40% · Κλάδος: ${sd.sde[0]}x–${sd.sde[1]}x</div></div>`;
+  if(ebitdaLow) methodCards += `<div class="method-card"><div class="m-name">EBITDA Multiple</div><div class="m-value">${fmt(ebitdaLow)} – ${fmt(ebitdaHigh)}</div><div class="m-weight">Βάρος: 35% · Κλάδος: ${sd.ebitda[0]}x–${sd.ebitda[1]}x</div></div>`;
+  if(revLow) methodCards += `<div class="method-card"><div class="m-name">Revenue Multiple</div><div class="m-value">${fmt(revLow)} – ${fmt(revHigh)}</div><div class="m-weight">Βάρος: 25% · Κλάδος: ${sd.rev[0]}x–${sd.rev[1]}x</div></div>`;
+  if(assetVal) methodCards += `<div class="method-card"><div class="m-name">Asset-Based (Floor)</div><div class="m-value">${fmt(assetVal)}</div><div class="m-weight">Ελάχιστη αξία βάσει assets</div></div>`;
+
+  const html = `
+  <div class="valuation-hero">
+    <div class="label">ΕΚΤΙΜΩΜΕΝΗ ΑΞΙΑ ΕΠΙΧΕΙΡΗΣΗΣ · ${sd.name}</div>
+    <div class="range">${fmt(finalLow)} – ${fmt(finalHigh)}</div>
+    <div class="sub">Σταθμισμένη εκτίμηση βάσει ${weights.length} μεθόδων αποτίμησης</div>
+  </div>
+
+  <div class="methods-grid">${methodCards}</div>
+
+  ${askingHtml}
+  ${roiHtml}
+
+  <div class="gauge-row">
+    <div class="score-card">
+      <div class="score-title">Ποιοτική Βαθμολογία Επιχείρησης</div>
+      <div class="bar-wrap"><div class="bar-fill" style="width:${qualPct}%;background:${qualColor}"></div></div>
+      <div class="bar-label"><span>${qualLabel} (${score}/${max})</span><span>${qualPct}%</span></div>
+    </div>
+    <div class="score-card">
+      <div class="score-title">Παράγοντες Διόρθωσης</div>
+      <div style="font-size:.82rem;color:var(--muted);line-height:1.8">
+        <div>📊 Ποιοτικός πολλαπλασιαστής: <strong>${qualMult.toFixed(2)}x</strong></div>
+        <div>🏢 Μισθωτήριο: <strong>${({long:'✅ Θετικό',short:'⚠️ Ουδέτερο',none:'❌ Αρνητικό',owned:'✅ Ιδιόκτητο'})[lease]}</strong></div>
+        <div>📅 Χρόνια λειτουργίας: <strong>${years} έτη (${yearsFactor}x)</strong></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">🔍 Ανάλυση Παραγόντων Αξίας</div>
+    <table class="factors-table">
+      <thead><tr><th>Παράγοντας</th><th>Αξιολόγηση</th><th>Επίδραση</th></tr></thead>
+      <tbody>${factorHtmlRows}</tbody>
+    </table>
+  </div>
+
+  <div class="disclaimer">
+    ⚠️ <strong>Σημείωση:</strong> Η εκτίμηση βασίζεται σε market multiples κλάδου και ποιοτικά κριτήρια. Δεν αντικαθιστά επαγγελματική due diligence ή πιστοποιημένη αποτίμηση. Χρησιμοποιήστε ως εργαλείο πρώτης προσέγγισης για διαπραγμάτευση.
+  </div>`;
+
+  document.getElementById('results-area').innerHTML = html;
+  showTab('results');
+}
+
+function updateMultiples(){}
+</script>
+</body>
+</html>
